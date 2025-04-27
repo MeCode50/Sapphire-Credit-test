@@ -418,8 +418,8 @@ model store {
   target_preowned           Int
   target_new_device         Int
   target_value              Int
-  store_open                DateTime                @db.Time
-  store_close               DateTime                @db.Time
+  store_open                DateTime                
+  store_close               DateTime                
   latitude                  String                  @default("0")
   longitude                 String                  @default("0")
   mou1                      String
