@@ -29,6 +29,7 @@ async function bootstrap() {
     .addTag('Auth', 'Endpoint for Auth functions')
     .addTag('Categories', 'Endpoint for Categories functions')
     .addTag('Service', 'Endpoint for Service functions')
+    .addTag('Store', 'Endpoint for Store functions')
     .build();
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerOptions);
