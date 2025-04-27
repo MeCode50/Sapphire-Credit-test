@@ -494,6 +494,103 @@ model company {
   @@map("company")
 }
 
+model mbe {
+  mbe_id              String   @id @default(cuid()) // New Prisma ID
+  mbe_id_int          Int?                                // Legacy database int ID (optional for import)
+
+  store_id            String                                // Will reference store.store_id
+  store_id2           String?                               // Optional additional store ids
+  store_id3           String?
+  store_id4           String?
+  store_id5           String?
+
+  firstname           String
+  lastname            String
+  username            String
+  password            String
+  pt_status           Boolean    @default(false)            // enum('0', '1') converted to boolean
+  tt_status           Boolean?   @default(false)            // optional
+  trainer_id          Int
+  phone               String
+  state               String?
+  title               String
+  is_probation        Boolean    @default(false)             // enum('Yes', 'No')
+  vendor_id           Int?                                  // optional
+  grade_name          String?
+  latitude            String     @default("0")
+  longitude           String     @default("0")
+  profile_picture     String
+
+  accessories_target  Int
+  new_device_target   Int
+  preowned_target     Int
+  sentiflex_target    Int
+  sentinel_target     Int
+  trade_in_target     Int
+
+  daily_hours         Int        @default(8)
+  days_per_week       Int        @default(6)
+  monthly_salary      Int        @default(25000)
+
+  payment_frequency   PaymentFrequency @default(Monthly) // new enum
+  bank_account_number String
+  bank_name           String
+  bank_code           String
+
+  total_commission    Decimal
+  commission_paid     Decimal
+  commission_unpaid   Decimal
+
+  tracking_status     TrackingStatus    @default(Absent)  // new enum
+  device_type         DeviceType         @default(ANDROID) // new enum
+  status              Boolean            @default(true)     // enum('1', '0') as boolean
+  account_level       AccountLevel       @default(One)     // new enum
+
+  guarantor_form      String
+  guarantor_form2     String?
+  referral_id         Int?
+  referral_channel    String?
+  referral_paid       Boolean             @default(false) // enum('Yes', 'No')
+
+  employment_status   EmploymentStatus    @default(Employed) // new enum
+  employment_date     DateTime?
+  volume_target       String
+  value_target        String
+  date_created        DateTime
+  updated_by          String
+  updated_at          DateTime
+  date_resigned       DateTime
+  date_deactivated    DateTime
+
+  @@map("mbe")  // Maps to your existing table name
+}
+
+
+enum PaymentFrequency {
+  Daily
+  Weekly
+  Monthly
+}
+
+enum TrackingStatus {
+  Absent
+  GPS_Off
+  In_Store
+  Out_Of_Store
+}
+
+
+enum AccountLevel {
+  One
+  Five
+}
+
+enum EmploymentStatus {
+  Employed
+  Not_Employed
+}
+
+
 enum ActiveStatus {
   ACTIVE
   INACTIVE
