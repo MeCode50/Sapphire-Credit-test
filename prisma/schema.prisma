@@ -377,129 +377,119 @@ model PushSubscription {
 }
 
 model store {
-  // Primary key (you changed this, ensure it's intended)
-  store_id                  Int                      @id @default(autoincrement())
-
-  // --- FIX THESE FOREIGN KEYS AGAIN ---
-  company_id                Int // <<< CHANGE THIS TO Int
-  region_id                 Int // <<< CHANGE THIS TO Int
-  cluster_id                Int // <<< CHANGE THIS TO Int
-  // --- End Fix ---
-
-  // --- The rest of the store fields ---
-  store_name                String
-  erp_warehouse_name        String?
-  address                   String
-  city                      String
-  state                     String?
-  region_data               String?
-  partner                   String?
-  store_email               String
-  store_dva                 String?
-  paystack_customer_code    String?
-  paystack_account_name     String?
-  paystack_account_number   String?
-  paystack_bank_name        String?
-  paystack_account_id       Int?
-  paystack_email            String
-  store_email2              String
-  store_email3              String
-  password                  String?
-  bundle                    String                  @default("0")
-  bundle_used               String                  @default("0")
-  insurance_email           String?
-  insurance_company         String?
-  partnership               store_partnership       @default(Retail)
-  store_type                store_store_type        @default(android)
-  status                    ActiveStatus            @default(ACTIVE)
-  devfin                    ActiveStatus            @default(INACTIVE)
-  target                    Int
-  target_reflex             Int                     @default(0)
-  target_android            Int
-  target_ios                Int
-  target_slam               Int
-  target_sentiflex          Int
-  target_accessories        Int
-  target_tradein            Int
-  target_preowned           Int
-  target_new_device         Int
-  target_value              Int
-  store_open                DateTime
-  store_close               DateTime
-  latitude                  String                  @default("0")
-  longitude                 String                  @default("0")
-  mou1                      String
-  mou2                      String
-  account_number            String
-  account_name              String
-  bank_name                 String
-  bank_code                 String
-  account_number2           String?
-  account_name2             String?
-  bank_name2                String?
-  bank_code2                String
-  phone_number              String?
-  samsung_campaign          store_samsung_campaign  @default(no)
-  credit_partner            ActiveStatus     @default(INACTIVE)
-  royal                     ActiveStatus     @default(INACTIVE)
-  discount_type             String
-  discount_value            String
-  created_at                DateTime
-  date_updated              DateTime
-  updated_by                String
-
-  // --- Relations will now correctly link Int -> Int ---
-  company                   company                 @relation(fields: [company_id], references: [company_id])
-  region                    region                  @relation(fields: [region_id], references: [region_id])
-  cluster                   cluster                 @relation(fields: [cluster_id], references: [cluster_id])
-
+  store_id                String                 @id @default(cuid())
+  store_id_int           Int?                   
+  company_id              String
+  region_id               String
+  cluster_id              String
+  store_name              String
+  erp_warehouse_name      String?
+  address                 String
+  city                    String
+  state                   String?
+  region_data             String?
+  partner                 String?
+  store_email             String
+  store_dva               String?
+  paystack_customer_code  String?
+  paystack_account_name   String?
+  paystack_account_number String?
+  paystack_bank_name      String?
+  paystack_account_id     Int?
+  paystack_email          String
+  store_email2            String
+  store_email3            String
+  password                String?
+  bundle                  String                 @default("0")
+  bundle_used             String                 @default("0")
+  insurance_email         String?
+  insurance_company       String?
+  partnership             store_partnership      @default(Retail)
+  store_type              store_store_type       @default(android)
+  status                  ActiveStatus           @default(ACTIVE)
+  devfin                  ActiveStatus           @default(INACTIVE)
+  target                  Int
+  target_reflex           Int                    @default(0)
+  target_android          Int
+  target_ios              Int
+  target_slam             Int
+  target_sentiflex        Int
+  target_accessories      Int
+  target_tradein          Int
+  target_preowned         Int
+  target_new_device       Int
+  target_value            Int
+  store_open              DateTime               @db.Time(6)
+  store_close             DateTime               @db.Time(6)
+  latitude                String                 @default("0")
+  longitude               String                 @default("0")
+  mou1                    String
+  mou2                    String
+  account_number          String
+  account_name            String
+  bank_name               String
+  bank_code               String
+  account_number2         String?
+  account_name2           String?
+  bank_name2              String?
+  bank_code2              String
+  phone_number            String?
+  samsung_campaign        store_samsung_campaign @default(no)
+  credit_partner          ActiveStatus           @default(INACTIVE)
+  royal                   ActiveStatus           @default(INACTIVE)
+  discount_type           String
+  discount_value          String
+  created_at              DateTime
+  date_updated            DateTime
+  updated_by              String
+  cluster                 cluster                @relation(fields: [cluster_id], references: [cluster_id])
+  company                 company                @relation(fields: [company_id], references: [company_id])
+  region                  region                 @relation(fields: [region_id], references: [region_id])
 
   @@map("store")
 }
 
 model cluster {
-  cluster_id              Int          @id @default(autoincrement())
+  cluster_id              String       @id @default(cuid())
   region_id               Int
   cluster_name            String
   cluster_supervisor_id   Int
   cluster_supervisor_id_2 Int?
   status                  ActiveStatus @default(ACTIVE)
-  date_created            DateTime  @default(now()) @map("date_created")
+  date_created            DateTime     @default(now()) @map("date_created")
   updated_by              String
   stores                  store[]
 
   @@map("cluster")
 }
 
-
 model region {
-  region_id           Int          @id @default(autoincrement())
-  region_name         String
-  region_manager_id   Int
-  status              ActiveStatus @default(ACTIVE)
-  date_created        DateTime  @default(now()) @map("date_created")
-  updated_by          String
-  stores              store[]
+  region_id         String       @id @default(cuid())
+  region_name       String
+  region_manager_id Int
+  status            ActiveStatus @default(ACTIVE)
+  date_created      DateTime     @default(now()) @map("date_created")
+  updated_by        String
+  stores            store[]
 
   @@map("region")
 }
 
-
 model company {
-  company_id          Int          @id @default(autoincrement())
-  country_id          Int
-  company_type        company_company_type  @default(android)
-  company_name        String
-  company_phone       String
-  erp_supplier_name   String?
-  api_key             String
-  username            String
-  password            String
-  ims_company         ActiveStatus   @default(ACTIVE)
-  domino_company      ActiveStatus   @default(ACTIVE)
-  status              ActiveStatus    @default(ACTIVE)
-  date_created        DateTime  @default(now()) @map("date_created")
-  stores              store[]
+  company_id        String               @id @default(cuid())
+  country_id        Int
+  company_type      company_company_type @default(android)
+  company_name      String
+  company_phone     String
+  erp_supplier_name String?
+  api_key           String
+  username          String
+  password          String
+  ims_company       ActiveStatus         @default(ACTIVE)
+  domino_company    ActiveStatus         @default(ACTIVE)
+  status            ActiveStatus         @default(ACTIVE)
+  date_created      DateTime             @default(now()) @map("date_created")
+  stores            store[]
 
   @@map("company")
 }
