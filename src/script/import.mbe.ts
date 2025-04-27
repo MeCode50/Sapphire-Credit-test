@@ -16,7 +16,7 @@ async function importMBE() {
   const mbes: any[] = [];
   let rowCount = 0;
 
-  const filePath = path.join(__dirname, '../mbe.csv');
+  const filePath = path.join(__dirname, '../mbe_promoter.csv');
 
   fs.createReadStream(filePath)
     .pipe(csvParser())
