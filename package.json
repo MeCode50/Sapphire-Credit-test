@@ -23,7 +23,8 @@
     "seed": "npx ts-node prisma/seed.ts",
     "migrate:run": "ts-node src/run-migration.ts",
     "import:store": "npx ts-node src/script/import.store.ts",
-    "import:company": "npx ts-node src/script/import.company.ts"
+    "import:company": "npx ts-node src/script/import.company.ts",
+    "import:mbe": "npx ts-node src/script/import.mbe.ts"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
