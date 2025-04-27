@@ -71,7 +71,7 @@ async function importMBE() {
       }
 
       const mbe = {
-        mbe_id_int: parseInt(row.mbe_id_int) || null,
+        mbe_id_int: parseInt(row.mbe_id),
         store_id: row.store_id,
         store_id2: row.store_id2 || null,
         store_id3: row.store_id3 || null,

@@ -11,6 +11,7 @@
     "start": "nest start",
     "prisma:dev": "npx prisma migrate dev && npx prisma generate && npx prisma studio",
     "prisma:prod": "npx prisma db pull && npx prisma migrate deploy && npx prisma generate && npx prisma studio",
+    "prisma:clear": "npx ts-node prisma/clearMbe.ts",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
@@ -21,7 +22,6 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed": "npx ts-node prisma/seed.ts",
-    "migrate:run": "ts-node src/run-migration.ts",
     "import:store": "npx ts-node src/script/import.store.ts",
     "import:company": "npx ts-node src/script/import.company.ts",
     "import:mbe": "npx ts-node src/script/import.mbe.ts"
