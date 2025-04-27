@@ -1,0 +1,588 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userId             String               @id @default(cuid())
+  firstName          String
+  lastName           String
+  email              String               @unique
+  dob                String?
+  gender             String?
+  role               Role                 @default(USER)
+  referralCode       String?              @unique
+  telephoneNumber    String?              @unique
+  profile_picture    String?
+  otp                String?
+  tokenVersion       Int                  @default(0)
+  accountStatus      Status               @default(PENDING)
+  isActive           Boolean              @default(false)
+  otpExpiry          DateTime?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  sapphireId         String?              @unique
+  Admins             Admins?
+  Customers          Customers[]
+  PushSubscription   PushSubscription?
+  RefreshSession     RefreshSession[]
+  TransactionHistory TransactionHistory[]
+  Wallet             Wallet?
+  WalletBalance      WalletBalance?
+
+  @@index([userId])
+  @@index([email])
+  @@index([referralCode])
+  @@index([accountStatus])
+  @@index([isActive])
+  @@index([role])
+  @@index([telephoneNumber])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model Customers {
+  customerId         String               @id @default(cuid())
+  firstName          String
+  lastName           String
+  email              String               @unique
+  bvn                String               @unique
+  dob                String
+  userid             String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  customerLoanDiskId String?
+  channel            String?
+  bvnPhoneNumber     String
+  mainPhoneNumber    String?
+  dobMisMatch        Boolean              @default(false)
+  CustomerDropOffLog CustomerDropOffLog[]
+  CustomerKYC        CustomerKYC[]
+  regBy              User?                @relation(fields: [userid], references: [userId])
+  LoanRecord         LoanRecord[]
+  TransactionHistory TransactionHistory[]
+  Wallet             Wallet?
+  WalletBalance      WalletBalance?
+
+  @@index([customerId])
+  @@index([firstName])
+  @@index([lastName])
+  @@index([email])
+  @@index([bvnPhoneNumber])
+  @@index([mainPhoneNumber])
+  @@index([bvn])
+  @@index([dob])
+  @@index([createdAt])
+  @@index([updatedAt])
+  @@index([customerLoanDiskId])
+}
+
+model CustomerKYC {
+  kycId                    String    @id @default(cuid())
+  customerId               String
+  phone2                   String?
+  phone3                   String?
+  houseNumber              String
+  streetAddress            String
+  nearestBusStop           String
+  localGovernment          String
+  state                    String
+  town                     String
+  occupation               String
+  businessName             String?
+  applicantBusinessAddress String
+  applicantAddress         String
+  source                   String
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+  phone2Status             String    @default("pending")
+  phone3Status             String    @default("pending")
+  status2Comment           String?
+  status3Comment           String?
+  customer                 Customers @relation(fields: [customerId], references: [customerId], onDelete: Cascade)
+
+  @@index([kycId])
+  @@index([customerId])
+  @@index([state])
+  @@index([localGovernment])
+  @@index([occupation])
+  @@index([createdAt])
+  @@index([updatedAt])
+  @@index([phone2Status])
+  @@index([phone3Status])
+}
+
+model Wallet {
+  wallet_id     String     @id @default(cuid())
+  accountNumber String     @unique
+  bankName      String?
+  dva_id        Int?
+  accountName   String?
+  bankId        Int?
+  currency      String?
+  cust_code     String?    @unique
+  cust_id       Int?
+  userId        String?    @unique
+  customerId    String?    @unique
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+  customer      Customers? @relation(fields: [customerId], references: [customerId], onDelete: Cascade)
+  user          User?      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([wallet_id])
+  @@index([userId])
+  @@index([accountNumber])
+  @@index([bankName])
+  @@index([cust_code])
+  @@index([cust_id])
+  @@index([currency])
+  @@index([customerId])
+  @@index([accountName])
+  @@index([created_at])
+  @@index([updated_at])
+}
+
+model WalletBalance {
+  balanceId   String     @id @default(cuid())
+  userId      String?    @unique
+  customerId  String?    @unique
+  balance     Float      @default(0.0)
+  lastBalance Float      @default(0.0)
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  customer    Customers? @relation(fields: [customerId], references: [customerId], onDelete: Cascade)
+  user        User?      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([balanceId])
+  @@index([userId])
+  @@index([customerId])
+  @@index([balance])
+  @@index([lastBalance])
+  @@index([created_at])
+  @@index([updated_at])
+}
+
+model LoanRecord {
+  loanRecordId String     @id @default(cuid())
+  customerId   String
+  loanDiskId   String?
+  lastPoint    String?
+  channel      String?
+  loanStatus   LoanStatus @default(ENROLLED)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  loanAmount   Float      @default(0)
+  customer     Customers  @relation(fields: [customerId], references: [customerId], onDelete: Cascade)
+
+  @@index([loanRecordId])
+  @@index([customerId])
+  @@index([loanDiskId])
+  @@index([lastPoint])
+  @@index([channel])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model CustomerDropOffLog {
+  dropOffLogId    String    @id @default(cuid())
+  screenTime      String?
+  apiResponseTime String?
+  customerId      String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  channel         String?
+  screenName      String?
+  customer        Customers @relation(fields: [customerId], references: [customerId], onDelete: Cascade)
+
+  @@index([dropOffLogId])
+  @@index([customerId])
+  @@index([screenTime])
+  @@index([apiResponseTime])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model TransactionHistory {
+  transactionHistoryId String      @id @default(cuid())
+  amount               Float
+  paymentType          PaymentType
+  prevBalance          Float
+  newBalance           Float
+  paymentReference     String
+  extRef               String?
+  currency             String?
+  channel              String?
+  charge               Float?
+  chargeNarration      String?
+  senderBank           String?
+  senderAccount        String?
+  recieverBank         String?
+  recieverAccount      String?
+  paymentDescription   String
+  paid_at              DateTime?
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  userUserId           String?
+  customerId           String?
+  customer             Customers?  @relation(fields: [customerId], references: [customerId], onDelete: Cascade)
+  User                 User?       @relation(fields: [userUserId], references: [userId], onDelete: Cascade)
+
+  @@index([transactionHistoryId])
+  @@index([amount])
+  @@index([paymentType])
+  @@index([paymentReference])
+  @@index([extRef])
+  @@index([currency])
+  @@index([channel])
+  @@index([charge])
+  @@index([chargeNarration])
+  @@index([senderBank])
+  @@index([senderAccount])
+  @@index([recieverBank])
+  @@index([recieverAccount])
+  @@index([paymentDescription])
+  @@index([userUserId])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model RefreshSession {
+  sessionId            String   @id @default(cuid())
+  userId               String
+  refreshToken         String
+  deviceOS             String?
+  deviceBrowser        String?
+  deviceBrowserVersion String?
+  deviceName           String?
+  userAgent            String?
+  ipAddress            String?
+  expiresAt            DateTime
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([deviceOS])
+  @@index([deviceBrowser])
+  @@index([deviceBrowserVersion])
+  @@index([deviceName])
+  @@index([userAgent])
+  @@index([ipAddress])
+}
+
+model Products {
+  productId   String   @id @default(cuid())
+  name        String   @unique
+  appKey      String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isActive    Boolean  @default(true)
+  updatedById String?
+  createdById String?
+  createdBy   Admins?  @relation("ProductCreator", fields: [createdById], references: [adminid])
+  updatedBy   Admins?  @relation("ProductUpdater", fields: [updatedById], references: [adminid])
+
+  @@index([productId])
+  @@index([name])
+  @@index([appKey])
+  @@index([createdAt])
+  @@index([updatedAt])
+  @@index([isActive])
+  @@index([updatedById])
+}
+
+model Admins {
+  adminid         String     @id @default(cuid())
+  password        String
+  userid          String     @unique
+  inviteStatus    Status     @default(PENDING)
+  user            User       @relation(fields: [userid], references: [userId], onDelete: Cascade)
+  createdDevices  Device[]   @relation("DeviceCreator")
+  updatedDevices  Device[]   @relation("DeviceUpdater")
+  createdProducts Products[] @relation("ProductCreator")
+  updatedProducts Products[] @relation("ProductUpdater")
+
+  @@index([adminid])
+  @@index([userid])
+  @@index([inviteStatus])
+  @@index([password])
+}
+
+model Device {
+  deviceid          String     @id @default(cuid())
+  deviceBrand       String?
+  deviceModel       String?
+  price             Float?
+  currency          String?    @default("NGN")
+  deviceImage       String?
+  date_created      DateTime   @default(now())
+  updated_at        DateTime   @updatedAt
+  isActive          Boolean    @default(true)
+  created_by_id     String?
+  deviceModelNumber String?
+  back_camera       String?
+  battery           String?
+  color             String?
+  data_storage      String?
+  display           String?
+  front_camera      String?
+  memory            String?
+  network           String?
+  os                String?
+  other_features    String?
+  proccessor_cpu    String?
+  sap               Float?
+  screen_size       String?
+  sentinel_cover    String?
+  sld               Float?
+  deviceType        DeviceType
+  case_colors       String?
+  windows_version   String?
+  updated_by_id     String?
+  created_by        Admins?    @relation("DeviceCreator", fields: [created_by_id], references: [adminid])
+  updated_by        Admins?    @relation("DeviceUpdater", fields: [updated_by_id], references: [adminid])
+
+  @@index([deviceid])
+  @@index([deviceBrand])
+  @@index([deviceModel])
+  @@index([deviceType])
+  @@index([date_created])
+  @@index([updated_at])
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([isActive])
+  @@index([price])
+  @@index([sap])
+  @@index([currency])
+}
+
+model PushSubscription {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  subscription Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([id])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([updatedAt])
+}
+
+model store {
+  store_id                  String                    @id @default(cuid())
+  company_id                String
+  region_id                 String
+  cluster_id                String
+  store_name                String
+  erp_warehouse_name        String?
+  address                   String
+  city                      String
+  state                     String?
+  region_data               String?
+  partner                   String?
+  store_email               String
+  store_dva                 String?
+  paystack_customer_code    String?
+  paystack_account_name     String?
+  paystack_account_number   String?
+  paystack_bank_name        String?
+  paystack_account_id       Int?
+  paystack_email            String
+  store_email2              String
+  store_email3              String
+  password                  String?
+  bundle                    String                  @default("0")
+  bundle_used               String                  @default("0")
+  insurance_email           String?
+  insurance_company         String?
+  partnership               store_partnership       @default(Retail)
+  store_type                store_store_type        @default(android)
+  status                    ActiveStatus            @default(ACTIVE)
+  devfin                    ActiveStatus            @default(INACTIVE)
+  target                    Int
+  target_reflex             Int                     @default(0)
+  target_android            Int
+  target_ios                Int
+  target_slam               Int
+  target_sentiflex          Int
+  target_accessories        Int
+  target_tradein            Int
+  target_preowned           Int
+  target_new_device         Int
+  target_value              Int
+  store_open                DateTime                @db.Time
+  store_close               DateTime                @db.Time
+  latitude                  String                  @default("0")
+  longitude                 String                  @default("0")
+  mou1                      String
+  mou2                      String
+  account_number            String
+  account_name              String
+  bank_name                 String
+  bank_code                 String
+  account_number2           String?
+  account_name2             String?
+  bank_name2                String?
+  bank_code2                String
+  phone_number              String? 
+  samsung_campaign          store_samsung_campaign  @default(no)
+  credit_partner            ActiveStatus     @default(INACTIVE)
+  royal                     ActiveStatus     @default(INACTIVE)
+  discount_type             String
+  discount_value            String
+  created_at                DateTime
+  date_updated              DateTime
+  updated_by                String
+  company                   company                 @relation(fields: [company_id], references: [company_id])
+  region                    region                  @relation(fields: [region_id], references: [region_id])
+  cluster                   cluster                 @relation(fields: [cluster_id], references: [cluster_id])
+
+  @@map("store")
+}
+
+model cluster {
+  cluster_id              String       @id @default(cuid())
+  region_id               Int
+  cluster_name            String
+  cluster_supervisor_id   Int
+  cluster_supervisor_id_2 Int?
+  status                  ActiveStatus @default(ACTIVE)
+  date_created            DateTime  @default(now()) @map("date_created")
+  updated_by              String
+  stores                  store[]
+
+  @@map("cluster")
+}
+
+
+model region {
+  region_id           String       @id @default(cuid())
+  region_name         String
+  region_manager_id   Int
+  status              ActiveStatus @default(ACTIVE)
+  date_created        DateTime  @default(now()) @map("date_created")
+  updated_by          String
+  stores              store[]
+
+  @@map("region")
+}
+
+
+model company {
+  company_id          String       @id @default(cuid())
+  country_id          Int
+  company_type        company_company_type  @default(android)
+  company_name        String
+  company_phone       String
+  erp_supplier_name   String?
+  api_key             String
+  username            String
+  password            String
+  ims_company         ActiveStatus   @default(ACTIVE)
+  domino_company      ActiveStatus   @default(ACTIVE)
+  status              ActiveStatus    @default(ACTIVE)
+  date_created        DateTime  @default(now()) @map("date_created")
+  stores              store[]
+
+  @@map("company")
+}
+
+enum ActiveStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum company_company_type {
+  android
+  ios
+  distributor
+}
+
+enum store_samsung_campaign {
+  no
+  yes
+}
+
+enum store_partnership {
+  Corporate
+  Retail
+}
+
+enum store_store_type {
+  ios
+  android
+  all
+}
+
+enum DeviceType {
+  ANDROID
+  IOS
+  HOME_APPLIANCES
+  COMPUTER
+  ACCESSORIES
+}
+
+enum Role {
+  USER
+  AGENT
+  SUPER_ADMIN
+  ADMIN
+  FINANCE
+  STORE_MANAGER
+  STORE_BRANCH_MANAGER
+  INVENTORY_MANAGER
+  VERIFICATION_OFFICER
+  DEVELOPER
+  SUPPORT
+  HUMAN_RESOURCE
+}
+
+enum Status {
+  ACTIVE
+  APPROVED
+  PENDING
+  SUSPENDED
+  ARCHIVED
+  FRAUD
+  REJECTED
+  FULFILLED
+  ACCEPTED
+  KYC_1
+  KYC_2
+  KYC_3
+}
+
+enum AccountType {
+  INDIVIDUAL
+  BUSINESS
+}
+
+enum PaymentType {
+  DEBIT
+  CREDIT
+  REFUND
+  COUPON
+}
+
+enum LoanStatus {
+  ENROLLED
+  APPROVED
+  REJECTED
+  FULFILLED
+  OPEN
+  CLOSED
+  OVERDUE
+}
+
+enum TransactionType {
+  DEBIT
+  CREDIT
+}
