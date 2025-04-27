@@ -377,10 +377,16 @@ model PushSubscription {
 }
 
 model store {
-  store_id                  String                    @id @default(cuid())
-  company_id                String
-  region_id                 String
-  cluster_id                String
+  // Primary key (you changed this, ensure it's intended)
+  store_id                  Int                      @id @default(autoincrement())
+
+  // --- FIX THESE FOREIGN KEYS AGAIN ---
+  company_id                Int // <<< CHANGE THIS TO Int
+  region_id                 Int // <<< CHANGE THIS TO Int
+  cluster_id                Int // <<< CHANGE THIS TO Int
+  // --- End Fix ---
+
+  // --- The rest of the store fields ---
   store_name                String
   erp_warehouse_name        String?
   address                   String
@@ -418,8 +424,8 @@ model store {
   target_preowned           Int
   target_new_device         Int
   target_value              Int
-  store_open                DateTime                
-  store_close               DateTime                
+  store_open                DateTime
+  store_close               DateTime
   latitude                  String                  @default("0")
   longitude                 String                  @default("0")
   mou1                      String
@@ -432,7 +438,7 @@ model store {
   account_name2             String?
   bank_name2                String?
   bank_code2                String
-  phone_number              String? 
+  phone_number              String?
   samsung_campaign          store_samsung_campaign  @default(no)
   credit_partner            ActiveStatus     @default(INACTIVE)
   royal                     ActiveStatus     @default(INACTIVE)
@@ -441,15 +447,18 @@ model store {
   created_at                DateTime
   date_updated              DateTime
   updated_by                String
+
+  // --- Relations will now correctly link Int -> Int ---
   company                   company                 @relation(fields: [company_id], references: [company_id])
   region                    region                  @relation(fields: [region_id], references: [region_id])
   cluster                   cluster                 @relation(fields: [cluster_id], references: [cluster_id])
+
 
   @@map("store")
 }
 
 model cluster {
-  cluster_id              String       @id @default(cuid())
+  cluster_id              Int          @id @default(autoincrement())
   region_id               Int
   cluster_name            String
   cluster_supervisor_id   Int
@@ -464,7 +473,7 @@ model cluster {
 
 
 model region {
-  region_id           String       @id @default(cuid())
+  region_id           Int          @id @default(autoincrement())
   region_name         String
   region_manager_id   Int
   status              ActiveStatus @default(ACTIVE)
@@ -477,7 +486,7 @@ model region {
 
 
 model company {
-  company_id          String       @id @default(cuid())
+  company_id          Int          @id @default(autoincrement())
   country_id          Int
   company_type        company_company_type  @default(android)
   company_name        String
