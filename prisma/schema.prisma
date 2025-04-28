@@ -376,7 +376,7 @@ model PushSubscription {
   @@index([updatedAt])
 }
 
-model store {
+model Store {
   store_id                String                 @id @default(cuid())
   company_id              String
   region_id               String
@@ -442,37 +442,60 @@ model store {
   date_updated            DateTime
   updated_by              String
   store_id_int            Int?
-  cluster                 cluster                @relation(fields: [cluster_id], references: [cluster_id])
-  company                 company                @relation(fields: [company_id], references: [company_id])
-  region                  region                 @relation(fields: [region_id], references: [region_id])
+  cluster                 Cluster                @relation(fields: [cluster_id], references: [cluster_id])
+  company                 Company                @relation(fields: [company_id], references: [company_id])
+  region                  Region                 @relation(fields: [region_id], references: [region_id])
 
+  @@index([store_id])
+  @@index([company_id])
+  @@index([region_id]) 
+  @@index([cluster_id])
+  @@index([store_name])
+  @@index([store_email])
+  @@index([status])
+  @@index([partnership])
+  @@index([store_type])
+  @@index([created_at])
+  @@index([date_updated])
 }
 
-model cluster {
+model Cluster {
   cluster_id              String       @id @default(cuid())
   region_id               Int
   cluster_name            String
   cluster_supervisor_id   Int
   cluster_supervisor_id_2 Int?
   status                  ActiveStatus @default(ACTIVE)
-  date_created            DateTime     @default(now()) @map("date_created")
+  date_created            DateTime     @default(now())
   updated_by              String
-  stores                  store[]
+  stores                  Store[]
 
+  @@index([cluster_id])
+  @@index([region_id])
+  @@index([cluster_name])
+  @@index([cluster_supervisor_id])
+  @@index([status])
+  @@index([date_created])
 }
 
-model region {
+model Region {
   region_id         String       @id @default(cuid())
   region_name       String
   region_manager_id Int
   status            ActiveStatus @default(ACTIVE)
-  date_created      DateTime     @default(now()) @map("date_created")
+  date_created      DateTime     @default(now())
   updated_by        String
-  stores            store[]
+  stores            Store[]
 
+  @@index([region_id])
+  @@index([region_name])
+  @@index([region_manager_id])
+  @@index([status])
+  @@index([date_created])
+  @@index([updated_by])
 }
 
-model company {
+  model Company {
   company_id        String               @id @default(cuid())
   country_id        Int
   company_type      company_company_type @default(android)
@@ -486,11 +509,17 @@ model company {
   domino_company    ActiveStatus         @default(ACTIVE)
   status            ActiveStatus         @default(ACTIVE)
   date_created      DateTime             @default(now()) @map("date_created")
-  stores            store[]
+  stores            Store[]
 
+  @@index([company_id])
+  @@index([country_id])
+  @@index([company_type])
+  @@index([company_name])
+  @@index([status])
+  @@index([date_created])
 }
 
-model mbe {
+model Mbe {
   mbe_id              String           @id @default(cuid())
   mbe_id_int          Int?
   store_id            String
@@ -549,6 +578,23 @@ model mbe {
   date_resigned       DateTime
   date_deactivated    DateTime
 
+  @@index([mbe_id])
+  @@index([mbe_id_int])
+  @@index([store_id])
+  @@index([firstname])
+  @@index([lastname])
+  @@index([username])
+  @@index([trainer_id])
+  @@index([phone])
+  @@index([vendor_id])
+  @@index([tracking_status])
+  @@index([status])
+  @@index([employment_status])
+  @@index([date_created])
+  @@index([updated_by])
+  @@index([updated_at])
+  @@index([date_resigned])
+  @@index([date_deactivated])
 }
 
 enum PaymentFrequency {
