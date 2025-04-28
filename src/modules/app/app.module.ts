@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { PrismaModule } from '../../lib/prisma/prisma.module';
 import { StoreModule } from '../store/stoe.module';
 import { MbeModule } from '../agents/mbe.module';
+import { DatacultrConfigModule } from '../../lib/scheduleLock/lock.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -14,6 +15,7 @@ import { MbeModule } from '../agents/mbe.module';
     PrismaModule,
     StoreModule,
     MbeModule,
+    DatacultrConfigModule,
   ],
   controllers: [AppController],
   providers: [AppService],
