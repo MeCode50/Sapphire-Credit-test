@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from '../../lib/prisma/prisma.module';
 import { StoreModule } from '../store/stoe.module';
+import { MbeModule } from '../agents/mbe.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -12,6 +13,7 @@ import { StoreModule } from '../store/stoe.module';
     }),
     PrismaModule,
     StoreModule,
+    MbeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
