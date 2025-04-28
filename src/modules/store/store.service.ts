@@ -2,7 +2,7 @@
 
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../lib/prisma/prisma.service';
-import { store } from '@prisma/client';
+import { Store } from '@prisma/client';
 
 @Injectable()
 export class StoreService {
@@ -13,7 +13,7 @@ export class StoreService {
     page: number = 1,
     limit: number = 10,
   ): Promise<{
-    data: store[];
+    data: Store[];
     total: number;
     page: number;
     lastPage: number;
