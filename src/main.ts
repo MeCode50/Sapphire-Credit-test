@@ -14,7 +14,7 @@ async function bootstrap() {
 
   // Swagger configuration
   const swaggerOptions = new DocumentBuilder()
-    .setTitle(`Senti Store API`)
+    .setTitle(`Sapphire Credit API`)
     .setDescription(`API Documentation foR sapphire credit`)
     .setVersion('1.0.0')
     .addServer(`http://localhost:${port}`, 'Local environment')
