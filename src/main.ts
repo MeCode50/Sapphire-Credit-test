@@ -10,12 +10,12 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 4000);
   const productionUrl = configService.get<string>('PRODUCTION_URL');
-  const platform = configService.get<string>('PLATFORM_NAME');
+  const platform = configService.get<string>('SAPPHIRE CREDIT');
 
   // Swagger configuration
   const swaggerOptions = new DocumentBuilder()
-    .setTitle(`${platform} API`)
-    .setDescription(`API Documentation for ${platform} API`)
+    .setTitle(`Senti Store API`)
+    .setDescription(`API Documentation foR sapphire credit`)
     .setVersion('1.0.0')
     .addServer(`http://localhost:${port}`, 'Local environment')
     .addServer(`https://api.unistudentsmatch.com`, 'Production environment')
@@ -31,14 +31,13 @@ async function bootstrap() {
     .addTag('Service', 'Endpoint for Service functions')
     .addTag('Store', 'Endpoint for Store functions')
     .addTag('Mbe', 'Endpoint for mbe functions')
-
     .build();
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerOptions);
 
   // Setup Swagger at /docs
   SwaggerModule.setup('docs', app, swaggerDocument, {
-    customSiteTitle: `${platform} API`,
+    customSiteTitle: `Sapphire Credit API`,
     swaggerOptions: {
       explorer: false,
       defaultModelsExpandDepth: -1,
