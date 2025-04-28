@@ -1,31 +1,20 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import * as FormData from 'form-data';
 import * as fs from 'fs';
-import { UnlockSingleDeviceDto, GetAutoLockReportDto } from 'src/dto/lock.dto';
+import {
+  UnlockSingleDeviceDto,
+  BulkAutoLockDto,
+  GetAutoLockReportDto,
+} from 'src/dto/lock.dto';
 
 @Injectable()
 export class LockService {
-  private readonly baseUrl: string;
-  private readonly reportBaseUrl: string;
-  private readonly username: string;
-  private readonly password: string;
-  private readonly client: string;
-
-  constructor(private readonly configService: ConfigService) {
-    this.baseUrl = this.configService.get<string>('DATACULTR_BASE_URL', '');
-    this.reportBaseUrl = this.configService.get<string>(
-      'DATACULTR_REPORT_BASE_URL',
-      '',
-    );
-    this.username = this.configService.get<string>('DATACULTR_USERNAME', '');
-    this.password = this.configService.get<string>('DATACULTR_PASSWORD', '');
-    this.client = this.configService.get<string>(
-      'DATACULTR_CLIENT',
-      'SENTINELOCK',
-    ); // Default to SENTINELOCK
-  }
+  private readonly baseUrl = process.env.DATACULTR_BASE_URL ?? '';
+  private readonly reportBaseUrl = process.env.DATACULTR_REPORT_BASE_URL ?? '';
+  private readonly username = process.env.DATACULTR_USERNAME ?? '';
+  private readonly password = process.env.DATACULTR_PASSWORD ?? '';
+  private readonly client = process.env.DATACULTR_CLIENT ?? 'SENTINELOCK';
 
   private async getAccessToken(): Promise<string> {
     try {
@@ -39,16 +28,16 @@ export class LockService {
       if (!token) throw new Error('Invalid token response');
       return token;
     } catch (error) {
+      console.error('Auth Error:', error.response?.data || error.message);
       throw new HttpException('Authentication Failed', HttpStatus.UNAUTHORIZED);
     }
   }
 
-  async bulkAutoLock(filePath: string, transactionId: string): Promise<any> {
+  async bulkAutoLock(bulkAutoLockDto: BulkAutoLockDto): Promise<any> {
     const accessToken = await this.getAccessToken();
-
     const formData = new FormData();
-    formData.append('file', fs.createReadStream(filePath));
-    formData.append('TransactionId', transactionId);
+    formData.append('file', fs.createReadStream(bulkAutoLockDto.file.path));
+    formData.append('TransactionId', bulkAutoLockDto.transactionId);
 
     const lockUrl = `${this.baseUrl}v3/lifecycle/dem_${this.client}/auto_lock_activate/`;
 
@@ -61,6 +50,10 @@ export class LockService {
       });
       return response.data;
     } catch (error) {
+      console.error(
+        'Bulk Auto Lock Error:',
+        error.response?.data || error.message,
+      );
       throw new HttpException(
         'Failed to bulk auto lock devices',
         HttpStatus.BAD_REQUEST,
@@ -70,7 +63,6 @@ export class LockService {
 
   async bulkUnlock(filePath: string, transactionId: string): Promise<any> {
     const accessToken = await this.getAccessToken();
-
     const formData = new FormData();
     formData.append('file', fs.createReadStream(filePath));
     formData.append('TransactionId', transactionId);
@@ -86,6 +78,10 @@ export class LockService {
       });
       return response.data;
     } catch (error) {
+      console.error(
+        'Bulk Unlock Error:',
+        error.response?.data || error.message,
+      );
       throw new HttpException(
         'Failed to bulk unlock devices',
         HttpStatus.BAD_REQUEST,
@@ -116,6 +112,10 @@ export class LockService {
       );
       return response.data;
     } catch (error) {
+      console.error(
+        'Unlock Single Device Error:',
+        error.response?.data || error.message,
+      );
       throw new HttpException(
         'Failed to unlock single device',
         HttpStatus.BAD_REQUEST,
@@ -141,6 +141,10 @@ export class LockService {
       );
       return response.data;
     } catch (error) {
+      console.error(
+        'Auto Lock Report Error:',
+        error.response?.data || error.message,
+      );
       throw new HttpException(
         'Failed to fetch auto lock report',
         HttpStatus.BAD_REQUEST,

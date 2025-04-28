@@ -9,22 +9,31 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { LockService } from './lock.service';
 import { ApiTags, ApiOperation, ApiConsumes } from '@nestjs/swagger';
-import { UnlockSingleDeviceDto, GetAutoLockReportDto } from 'src/dto/lock.dto';
+import {
+  UnlockSingleDeviceDto,
+  GetAutoLockReportDto,
+  BulkAutoLockDto,
+} from 'src/dto/lock.dto';
 
-@ApiTags('Lock')
-@Controller('lock')
+@ApiTags('Schedule Lock') // Updated tag to be more descriptive
+@Controller('schedule-lock') // Updated controller path to match module name
 export class LockController {
   constructor(private readonly lockService: LockService) {}
 
   @Post('bulk-auto-lock')
-  @ApiOperation({ summary: 'Bulk Auto Lock Devices' })
   @UseInterceptors(FileInterceptor('file'))
-  @ApiConsumes('multipart/form-data')
   async bulkAutoLock(
     @UploadedFile() file: Express.Multer.File,
-    @Body('transactionId') transactionId: string,
+    @Body() body: { transactionId: string },
   ) {
-    return this.lockService.bulkAutoLock(file.path, transactionId);
+    const bulkAutoLockDto = {
+      filePath: file.path, // path where Multer saves the uploaded file
+      transactionId: body.transactionId,
+    };
+    return this.lockService.bulkAutoLock({
+      file,
+      transactionId: body.transactionId,
+    });
   }
 
   @Post('bulk-unlock')

@@ -42,3 +42,20 @@ export class GetAutoLockReportDto {
   @IsOptional()
   imei?: string;
 }
+
+export class BulkAutoLockDto {
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+    description: 'CSV file containing device IMEIs to lock',
+  })
+  file: Express.Multer.File;
+
+  @ApiProperty({
+    example: '123456789012345',
+    description: 'Transaction ID of the device',
+  })
+  @IsString()
+  @IsNotEmpty()
+  transactionId: string;
+}
