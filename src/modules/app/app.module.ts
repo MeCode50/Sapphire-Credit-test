@@ -7,6 +7,7 @@ import { PrismaModule } from '../../lib/prisma/prisma.module';
 import { StoreModule } from '../store/stoe.module';
 import { MbeModule } from '../agents/mbe.module';
 import { LockModule } from 'src/lib/scheduleLock/lock.module';
+import { CloudinaryModule } from 'src/lib/cloudinary/cloudinary.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -16,6 +17,7 @@ import { LockModule } from 'src/lib/scheduleLock/lock.module';
     StoreModule,
     MbeModule,
     LockModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -7,7 +7,7 @@ import {
   BulkAutoLockDto,
   GetAutoLockReportDto,
 } from 'src/dto/lock.dto';
-
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 @Injectable()
 export class LockService {
   private readonly baseUrl = process.env.DATACULTR_BASE_URL ?? '';
@@ -15,6 +15,7 @@ export class LockService {
   private readonly username = process.env.DATACULTR_USERNAME ?? '';
   private readonly password = process.env.DATACULTR_PASSWORD ?? '';
   private readonly client = process.env.DATACULTR_CLIENT ?? 'SENTINELOCK';
+  constructor(private readonly cloudinaryService: CloudinaryService) {}
 
   private async getAccessToken(): Promise<string> {
     try {
@@ -35,8 +36,22 @@ export class LockService {
 
   async bulkAutoLock(bulkAutoLockDto: BulkAutoLockDto): Promise<any> {
     const accessToken = await this.getAccessToken();
+
+    // 1. Upload the file to Cloudinary first
+    const uploadedFile = await this.cloudinaryService.uploadRawFile(
+      bulkAutoLockDto.file.buffer,
+      'bulk-auto-lock',
+    );
+
+    // 2. Now, downloaded back the file from Cloudinary
+    const fileResponse = await axios.get(uploadedFile.secure_url, {
+      responseType: 'stream', // we want a stream
+    });
+
     const formData = new FormData();
-    formData.append('file', fs.createReadStream(bulkAutoLockDto.file.path));
+    formData.append('file', fileResponse.data, {
+      filename: bulkAutoLockDto.file.originalname,
+    });
     formData.append('TransactionId', bulkAutoLockDto.transactionId);
 
     const lockUrl = `${this.baseUrl}v3/lifecycle/dem_${this.client}/auto_lock_activate/`;
