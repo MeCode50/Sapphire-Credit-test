@@ -6,11 +6,35 @@ import { PrismaService } from 'src/lib/prisma/prisma.service';
 export class MbeService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllMbe(): Promise<mbe[]> {
-    return this.prisma.mbe.findMany({
-      orderBy: {
-        firstname: 'asc',
-      },
-    });
+  async getAllMbe(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<{
+    data: mbe[];
+    total: number;
+    page: number;
+    lastPage: number;
+  }> {
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.mbe.findMany({
+        skip,
+        take: limit,
+        orderBy: {
+          firstname: 'asc',
+        },
+      }),
+      this.prisma.mbe.count(),
+    ]);
+
+    const lastPage = Math.ceil(total / limit);
+
+    return {
+      data,
+      total,
+      page,
+      lastPage,
+    };
   }
 }
