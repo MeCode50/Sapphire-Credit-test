@@ -1,6 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { StoreService } from './store.service';
-import { store } from '@prisma/client';
+import { Store } from '@prisma/client';
 
 @Controller('stores')
 export class StoreController {
@@ -10,7 +10,7 @@ export class StoreController {
   async getAllStores(
     @Query('page') page = '1',
     @Query('limit') limit = '20',
-  ): Promise<{ data: store[]; total: number; page: number; lastPage: number }> {
+  ): Promise<{ data: Store[]; total: number; page: number; lastPage: number }> {
     return this.storeService.getAllStores(Number(page), Number(limit));
   }
 }
