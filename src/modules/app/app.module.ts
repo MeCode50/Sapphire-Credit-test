@@ -6,16 +6,17 @@ import { AppService } from './app.service';
 import { PrismaModule } from '../../lib/prisma/prisma.module';
 import { StoreModule } from '../store/stoe.module';
 import { MbeModule } from '../agents/mbe.module';
-import { DatacultrConfigModule } from '../../lib/scheduleLock/lock.module';
+import { LockModule } from 'src/modules/scheduleLock/lock.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: '.env', // Ensure it's loading from the right .env file
     }),
     PrismaModule,
     StoreModule,
     MbeModule,
-    DatacultrConfigModule,
+    LockModule,
   ],
   controllers: [AppController],
   providers: [AppService],

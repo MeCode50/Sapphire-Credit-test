@@ -31,6 +31,7 @@ async function bootstrap() {
     .addTag('Service', 'Endpoint for Service functions')
     .addTag('Store', 'Endpoint for Store functions')
     .addTag('Mbe', 'Endpoint for mbe functions')
+    .addTag('Lock', 'Endpoint for lock functions')
     .build();
 
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerOptions);
