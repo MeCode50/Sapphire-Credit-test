@@ -3,7 +3,7 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { mbe } from '@prisma/client';
+import { Mbe } from '@prisma/client';
 import { PrismaService } from 'src/lib/prisma/prisma.service';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class MbeService {
     page: number = 1,
     limit: number = 10,
   ): Promise<{
-    data: mbe[];
+    data: Mbe[];
     total: number;
     page: number;
     lastPage: number;
