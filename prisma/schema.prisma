@@ -448,7 +448,7 @@ model Store {
 
   @@index([store_id])
   @@index([company_id])
-  @@index([region_id]) 
+  @@index([region_id])
   @@index([cluster_id])
   @@index([store_name])
   @@index([store_email])
@@ -495,7 +495,7 @@ model Region {
   @@index([updated_by])
 }
 
-  model Company {
+model Company {
   company_id        String               @id @default(cuid())
   country_id        Int
   company_type      company_company_type @default(android)

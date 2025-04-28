@@ -24,6 +24,8 @@
     "seed": "npx ts-node prisma/seed.ts",
     "import:store": "npx ts-node src/script/import.store.ts",
     "import:company": "npx ts-node src/script/import.company.ts",
+    "import:region": "npx ts-node src/script/import.region.ts",
+    "import:cluster": "npx ts-node src/script/import.cluster.ts",
     "import:mbe": "npx ts-node src/script/import.mbe.ts"
   },
   "dependencies": {
