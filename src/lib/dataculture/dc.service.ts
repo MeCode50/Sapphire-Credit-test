@@ -45,7 +45,7 @@ export class DatacultrService {
   async putFormData(url: string, formData: FormData, token: string) {
     return axios.put(url, formData, {
       headers: {
-        // Authorization: `Bearer ${token}`, // ✅ Fixed here
+        Authorization: `Bearer ${token}`,
         ...formData.getHeaders(),
       },
     });
