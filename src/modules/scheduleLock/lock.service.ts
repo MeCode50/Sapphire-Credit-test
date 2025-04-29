@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { BulkAutoLockDto } from 'src/dto/lock.dto';
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import * as FormData from 'form-data';
+import { isTokenExpired } from '../../utils/token.utils';
 
 @Injectable()
 export class LockService {
@@ -18,6 +19,13 @@ export class LockService {
     accessToken: string,
   ): Promise<any> {
     try {
+      if (!accessToken || isTokenExpired(accessToken)) {
+        throw new HttpException(
+          'Access token is expired or invalid.',
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
       const formData = new FormData();
       formData.append('file', bulkAutoLockDto.file.buffer, {
         filename: bulkAutoLockDto.file.originalname,
@@ -28,10 +36,6 @@ export class LockService {
       const baseUrl = this.configService.get<string>('DATACULTR_BASE_URL');
       const client = this.configService.get<string>('DATACULTR_CLIENT');
       const lockUrl = `${baseUrl}v3/dem_${client}/auto_lock_activate/`;
-
-      console.log('Sending to:', lockUrl);
-      console.log('TransactionId:', bulkAutoLockDto.transactionId);
-      console.log('Form Headers:', formData.getHeaders());
 
       const response = await this.datacultrService.putFormData(
         lockUrl,
@@ -46,7 +50,6 @@ export class LockService {
         );
       }
 
-      console.log('Datacultr API Response:', response.data);
       return response.data;
     } catch (error) {
       console.error(
