@@ -51,18 +51,15 @@ export class LockController {
     if (!file) throw new Error('File is missing');
     if (!transactionId) throw new Error('TransactionId is missing');
 
-    // Get a fresh token instead of using the passed one
-    const freshToken = await this.datacultrService.getAccessToken();
+    // Get a fresh access token
+    const accessToken = await this.datacultrService.getAccessToken();
 
     const bulkAutoLockDto: BulkAutoLockDto = {
       file,
       transactionId,
     };
 
-    return this.lockService.bulkAutoLock(
-      bulkAutoLockDto,
-      `Bearer ${freshToken}`,
-    );
+    return this.lockService.bulkAutoLock(bulkAutoLockDto, accessToken);
   }
 
   @Get('get-token')
