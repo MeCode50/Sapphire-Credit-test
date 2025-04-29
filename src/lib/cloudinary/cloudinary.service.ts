@@ -110,8 +110,8 @@ export class CloudinaryService {
         .upload_stream(
           {
             folder: `${this.project}/${folder}`,
-            resource_type: 'raw', // Important: raw type for non-media files
-            allowed_formats: ['csv', 'txt', 'pdf', 'docx'], // allow CSV and others if you want
+            resource_type: 'raw', // Important for non-media files
+            // Removed allowed_formats for now.
           },
           (error, result) => {
             if (error) {
