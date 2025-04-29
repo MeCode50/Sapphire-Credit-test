@@ -22,17 +22,15 @@ export class LockController {
 
   @Post('bulk-auto-lock')
   @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Bulk Auto Lock Devices' })
+  @ApiConsumes('multipart/form-data')
   async bulkAutoLock(
     @UploadedFile() file: Express.Multer.File,
-    @Body() body: { transactionId: string },
+    @Body('transactionId') transactionId: string,
   ) {
-    const bulkAutoLockDto = {
-      filePath: file.path, // path where Multer saves the uploaded file
-      transactionId: body.transactionId,
-    };
     return this.lockService.bulkAutoLock({
       file,
-      transactionId: body.transactionId,
+      transactionId,
     });
   }
 
