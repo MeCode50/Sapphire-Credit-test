@@ -21,6 +21,10 @@ async function bootstrap() {
     .addServer(`https://api.unistudentsmatch.com`, 'Production environment')
     .addServer(`ws://localhost:${port}`, 'Local WebSocket server')
     .addServer(`ws://${productionUrl}:${port}`, 'Production WebSocket server')
+    // .addBearerAuth(
+    //   { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+    //   'access-token', // <- security name
+    // )
     .addBearerAuth(
       { type: 'http', scheme: 'Bearer', bearerFormat: 'JWT' },
       'Authorization',

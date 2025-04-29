@@ -2,7 +2,8 @@ import { DatacultrService } from '../../lib/dataculture/dc.service';
 import { CloudinaryService } from '../../lib/cloudinary/cloudinary.service';
 import { ConfigService } from '@nestjs/config';
 import { BulkAutoLockDto } from 'src/dto/lock.dto';
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import * as FormData from 'form-data';
 
 @Injectable()
 export class LockService {
@@ -12,38 +13,51 @@ export class LockService {
     private readonly configService: ConfigService,
   ) {}
 
-  async bulkAutoLock(bulkAutoLockDto: BulkAutoLockDto): Promise<any> {
-    const accessToken = await this.datacultrService.getAccessToken();
+  async bulkAutoLock(
+    bulkAutoLockDto: BulkAutoLockDto,
+    accessToken: string,
+  ): Promise<any> {
+    try {
+      const formData = new FormData();
+      formData.append('file', bulkAutoLockDto.file.buffer, {
+        filename: bulkAutoLockDto.file.originalname,
+        contentType: 'text/csv',
+      });
+      formData.append('TransactionId', bulkAutoLockDto.transactionId);
 
-    // Upload the file
-    const uploadedFile = await this.cloudinaryService.uploadRawFile(
-      bulkAutoLockDto.file.buffer,
-      'bulk-auto-lock',
-    );
+      const baseUrl = this.configService.get<string>('DATACULTR_BASE_URL');
+      const client = this.configService.get<string>('DATACULTR_CLIENT');
+      const lockUrl = `${baseUrl}v3/dem_${client}/auto_lock_activate/`;
 
-    // Download the file back as a stream
-    const fileResponse = await this.datacultrService.getFileStream(
-      uploadedFile.secure_url,
-    );
+      console.log('Sending to:', lockUrl);
+      console.log('TransactionId:', bulkAutoLockDto.transactionId);
+      console.log('Form Headers:', formData.getHeaders());
 
-    // Create form-data
-    const formData = require('form-data')();
-    formData.append('file', fileResponse.data, {
-      filename: bulkAutoLockDto.file.originalname,
-      contentType: bulkAutoLockDto.file.mimetype,
-    });
-    formData.append('TransactionId', bulkAutoLockDto.transactionId);
+      const response = await this.datacultrService.putFormData(
+        lockUrl,
+        formData,
+        accessToken,
+      );
 
-    // API endpoint
-    const lockUrl = `${this.configService.get<string>('DATACULTR_BASE_URL')}v3/lifecycle/dem_SENTINELOCK/auto_lock_activate/`;
+      if (!response?.data) {
+        throw new HttpException(
+          'No response received from Datacultr API',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
 
-    // Send PUT request
-    const response = await this.datacultrService.putFormData(
-      lockUrl,
-      formData,
-      accessToken,
-    );
-    return response.data;
+      console.log('Datacultr API Response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error(
+        'Bulk Auto Lock Error:',
+        error.response?.data || error.message,
+      );
+      throw new HttpException(
+        error.response?.data?.message || error.message,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 
   // Same for other methods: unlockSingleDevice, bulkUnlock, getAutoLockReport

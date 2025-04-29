@@ -5,65 +5,69 @@ import {
   UploadedFile,
   UseInterceptors,
   Body,
+  Put,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DatacultrService } from '../../lib/dataculture/dc.service';
 import { LockService } from './lock.service';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { Headers } from '@nestjs/common';
+
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import {
   UnlockSingleDeviceDto,
   GetAutoLockReportDto,
   BulkAutoLockDto,
 } from 'src/dto/lock.dto';
-@ApiTags('Schedule Lock') // Updated tag to be more descriptive
-@Controller('schedule-lock') // Updated controller path to match module name
+
+@ApiBearerAuth('Authorization')
+@ApiTags('Schedule Lock')
+@Controller('schedule-lock')
 export class LockController {
   constructor(
     private readonly lockService: LockService,
     private readonly datacultrService: DatacultrService,
   ) {}
 
-  @Post('bulk-auto-lock')
+  @Put('auto_lock_activate')
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Bulk Auto Lock Devices' })
   @ApiConsumes('multipart/form-data')
-  @ApiBody({ type: BulkAutoLockDto })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: { type: 'string', format: 'binary' },
+        TransactionId: { type: 'string' },
+      },
+      required: ['file', 'TransactionId'],
+    },
+  })
   async bulkAutoLock(
     @UploadedFile() file: Express.Multer.File,
-    @Body() body: BulkAutoLockDto,
+    @Body('TransactionId') transactionId: string,
   ) {
-    return this.lockService.bulkAutoLock({
+    if (!file) throw new Error('File is missing');
+    if (!transactionId) throw new Error('TransactionId is missing');
+
+    // Get a fresh token instead of using the passed one
+    const freshToken = await this.datacultrService.getAccessToken();
+
+    const bulkAutoLockDto: BulkAutoLockDto = {
       file,
-      transactionId: body.transactionId,
-    });
+      transactionId,
+    };
+
+    return this.lockService.bulkAutoLock(
+      bulkAutoLockDto,
+      `Bearer ${freshToken}`,
+    );
   }
 
   @Get('get-token')
   async getToken() {
     const token = await this.datacultrService.getAccessToken();
-    return { accessToken: token }; // Return the token in response
+    return { accessToken: token };
   }
-
-  // @Post('bulk-unlock')
-  // @ApiOperation({ summary: 'Bulk Unlock Devices' })
-  // @UseInterceptors(FileInterceptor('file'))
-  // @ApiConsumes('multipart/form-data')
-  // async bulkUnlock(
-  //   @UploadedFile() file: Express.Multer.File,
-  //   @Body('transactionId') transactionId: string,
-  // ) {
-  //   return this.lockService.bulkUnlock(file.path, transactionId);
-  // }
-
-  // @Post('unlock-single')
-  // @ApiOperation({ summary: 'Unlock Single Device' })
-  // async unlockSingle(@Body() unlockDto: UnlockSingleDeviceDto) {
-  //   return this.lockService.unlockSingleDevice(unlockDto);
-  // }
-
-  // @Post('report')
-  // @ApiOperation({ summary: 'Get Auto Lock Report' })
-  // async getAutoLockReport(@Body() reportDto: GetAutoLockReportDto) {
-  //   return this.lockService.getAutoLockReport(reportDto);
-  // }
 }

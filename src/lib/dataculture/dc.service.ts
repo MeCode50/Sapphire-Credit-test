@@ -20,7 +20,7 @@ export class DatacultrService {
         password,
       });
 
-      const token = response.data?.refresh;
+      const token = response.data?.access;
       if (!token) {
         throw new Error('Failed to retrieve the token.');
       }
@@ -45,7 +45,7 @@ export class DatacultrService {
   async putFormData(url: string, formData: FormData, token: string) {
     return axios.put(url, formData, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        // Authorization: `Bearer ${token}`, // ✅ Fixed here
         ...formData.getHeaders(),
       },
     });
